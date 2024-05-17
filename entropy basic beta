@@ -1,0 +1,299 @@
+if game.PlaceId("6872265039") ~= nil then lplr:Kick("Entropy does not support this game nigger")
+if game.PlaceId == 6872265039 then
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Entropy | basic beta", HidePremium = false, IntroText = "Entropy Basic Version" SaveConfig = true, ConfigFolder = "BestClient"})
+
+
+-- this is just tabs, making a func for it so i dont forget what it is
+local BlatantTab = Window:MakeTab({
+	Name = "Blatant",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+-- blatant shit
+BlatantTab:AddToggle({
+	Name = "KillAura",
+	Default = false,
+	Callback = function(Value)
+      -- "This may not work" said by zero
+local function detectEnemies()
+    -- Get all players in the game
+    local players = game:GetService("Players"):GetPlayers()
+    -- Create a table to store nearby enemies
+    local enemies = {}
+    
+    -- Loop through all players
+    for _, player in pairs(players) do
+        -- Check if the player is not the local player and is within a certain distance
+        if player ~= game.Players.LocalPlayer and (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 18 then
+            -- Add the player to the enemies table
+            table.insert(enemies, player)
+        end
+    end
+    
+    -- Return the enemies table
+    return enemies
+end
+
+-- Create a function to attack enemies
+local function attackEnemies(enemies)
+    -- Loop through all enemies
+    for _, enemy in pairs(enemies) do
+        -- Check if the enemy is still valid
+        if enemy and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
+            -- Attack the enemy
+            game:GetService("ReplicatedStorage").Damage:FireServer(enemy.Character.HumanoidRootPart, game.Players.LocalPlayer.Character.HumanoidRootPart)
+        end
+    end
+end
+
+-- Create a loop to continuously detect and attack enemies
+while true do
+    -- Detect nearby enemies
+    local enemies = detectEnemies()
+    
+    -- Attack the enemies
+    attackEnemies(enemies)
+    
+    -- Wait for a short period before repeating
+    wait(0.1)
+end
+	end    
+})
+
+-- fly >.<
+BlatantTab:AddButton({
+	Name = "Fly (must press C to toggle on and off)",
+	Callback = function()
+      		local flyActive = false
+
+local function fly(player)
+    -- Get the player's character
+    local character = player.Character
+
+    -- Set the player's humanoid to allow flying
+    character.Humanoid.WalkSpeed = 23
+
+    -- Create a new BodyVelocity object to control the player's movement
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.Parent = character.HumanoidRootPart
+
+    -- Create a function to update the player's movement
+    local function updateMovement()
+        -- Get the player's input
+        local userInput = game:GetService("UserInputService"):GetUserInput(Enum.UserInputType.MouseDelta)
+
+        -- Update the player's velocity based on the input
+        bodyVelocity.Velocity = Vector3.new(userInput.X, userInput.Y, 0)
+    end
+
+    -- Run the update function every frame
+    game:GetService("RunService").RenderStepped:Connect(updateMovement)
+
+    -- Set flyActive to true
+    flyActive = true
+end
+
+local function stopFly()
+    -- Get the player's character
+    local character = game:GetService("Players").LocalPlayer.Character
+
+    -- Set the player's humanoid to default values
+    character.Humanoid.WalkSpeed = 16
+
+    -- Destroy the BodyVelocity object to stop the player's movement
+    character.HumanoidRootPart:FindFirstChild("BodyVelocity"):Destroy()
+
+    -- Set flyActive to false
+    flyActive = false
+end
+
+-- Set up the keybind listener
+local keyDown = false
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.C and not keyDown then
+        if not flyActive then
+            fly(game:GetService("Players").LocalPlayer)
+        else
+            stopFly()
+        end
+
+        -- Set keyDown to true to avoid multiple inputs
+        keyDown = true
+
+        -- Reset keyDown after 0.5 seconds
+        wait(0.5)
+        keyDown = false
+    end
+end)
+  	end    
+})
+
+
+-- speed >.<
+BlatantTab:AddToggle({
+	Name = "Speed",
+	Default = false,
+	Callback = function(Value)
+		game.Players.LocalPlayer.Charecter.Humanoid.Walkspeed = 23
+	end    
+})
+
+
+-- Visuals >.<
+local VisualTab = Window:MakeTab({
+	Name = "Visuals",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+-- esp
+VisualsTab:AddToggle({
+	Name = "box esp",
+	Default = false,
+	Callback = function(Value)
+		local lplr - game.Players.LocalPlayer
+local camera = GetService("Workspace").CurrentCamera
+local CurrentCamera - workspace.CurrentCamera
+local worldToViewportPoint - CurrentCamera.worldToViewportPoint
+
+local HeadOff - Vector3.new(0, 0.5, 0)
+local LegOff - Vector3.new(0,3,0)
+
+for i,v in pairs(game.Players:GetChildren()) do
+    local BoxOutline = Drawing.new("Square")
+    BoxOutline.Visible - false
+    BoxOutline.Color - Color3.new(228, 173, 200)
+    BoxOutline.Thickness = 3
+    BoxOutline.Transparency - 1
+    BoxOutline.Filled - false
+
+    local Box - Drawing.new("Square")
+    Box.Visible - false
+    Box.Color - Color3.new(1,1,1)
+    Box.Thickness = 1
+    Box.Transparency 1
+    Box.Filled - false
+
+    function boxesp()
+        game:GetService("RunService"").RenderStepped.Connect(function()
+            if v.Charecter ~= nil and v.Charecter:FindFirstChild("Humanoid") ~= nil and v.Charecter:FindFirstChild("HumanoidRootPart")~= nil and v ~= lplr and v.Charecter.Humanoid.Health > 0 then 
+                local Vector, onScreen - camera.worldtoviewportpoint(v.Charecter.HumanoidRootPart.Position)
+
+                local RootPart = v.Charecter.HumanoidRootPart
+                local Head - v.Charecter.Head
+                local RootPosition, Rootvis - worldToViewportPoint (CurrentCamera, RootPart.Position
+                local HeadPosition - worldToViewportPoint(CurrentCamera, Head.Position + HeadOff)
+                local LagPosition - worldToViewportPoint(CurrentCamera, RootPart.Position - LegOff)
+ 
+                if onScreen then
+                    BoxOutline.Size - Vector2.new(1000 / RootPosition.Z, HeadPosition.Y - LegPosition.Y)
+                    BoxOutline.Position = Vector2.new(RootPosition.X - BoxOutline.Size.X, / 2, RootPosition.Y = BoxOutline.Size.Y / 2)
+                    BoxOutline.Visible - true
+
+                    Box.Size = Vector2.new(1000 / RootPosition.Z, HeadPosition.Y - LegPosition.Y)
+                    Box.Position = Vector.new(RootPosition.X - Box.Size.X, / 2, RootPosition.Y = Box.Size.Y / 2)
+                    Box.Visible = true
+                   else
+                       BoxOutline.Visible - false
+                       Box.Visible = false
+                   end
+               else
+                   BoxOutline.Visible - false
+                       Box.Visible = false
+                   end
+              end)
+          end
+          coroutine.wrap(boxesp)()
+      end
+
+      game.Players.PlayersAdded:Connect(function(v)
+local BoxOutline = Drawing.new("Square")
+    BoxOutline.Visible - false
+    BoxOutline.Color - Color3.new(228, 173, 200)
+    BoxOutline.Thickness = 3
+    BoxOutline.Transparency - 1
+    BoxOutline.Filled - false
+
+    local Box - Drawing.new("Square")
+    Box.Visible - false
+    Box.Color - Color3.new(1,1,1)
+    Box.Thickness = 1
+    Box.Transparency 1
+    Box.Filled - false
+
+    function boxesp()
+        game:GetService("RunService"").RenderStepped.Connect(function()
+            if v.Charecter ~= nil and v.Charecter:FindFirstChild("Humanoid") ~= nil and v.Charecter:FindFirstChild("HumanoidRootPart")~= nil and v ~= lplr and v.Charecter.Humanoid.Health > 0 then 
+                local Vector, onScreen - camera.worldtoviewportpoint(v.Charecter.HumanoidRootPart.Position)
+
+                local RootPart = v.Charecter.HumanoidRootPart
+                local Head - v.Charecter.Head
+                local RootPosition, Rootvis - worldToViewportPoint (CurrentCamera, RootPart.Position
+                local HeadPosition - worldToViewportPoint(CurrentCamera, Head.Position + HeadOff)
+                local LagPosition - worldToViewportPoint(CurrentCamera, RootPart.Position - LegOff)
+ 
+                if onScreen then
+                    BoxOutline.Size - Vector2.new(1000 / RootPosition.Z, HeadPosition.Y - LegPosition.Y)
+                    BoxOutline.Position = Vector2.new(RootPosition.X - BoxOutline.Size.X, / 2, RootPosition.Y = BoxOutline.Size.Y / 2)
+                    BoxOutline.Visible - true
+
+                    Box.Size = Vector2.new(1000 / RootPosition.Z, HeadPosition.Y - LegPosition.Y)
+                    Box.Position = Vector.new(RootPosition.X - Box.Size.X, / 2, RootPosition.Y = Box.Size.Y / 2)
+                    Box.Visible = true
+                   else
+                       BoxOutline.Visible - false
+                       Box.Visible = false
+                   end
+               else
+                   BoxOutline.Visible - false
+                       Box.Visible = false
+                   end
+              end)
+          end
+          coroutine.wrap(boxesp)
+      end)
+	end    
+})
+
+
+-- themes >.<
+local ThemesTab = Window:MakeTab({
+	Name = "Themez",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+
+-- themes lololololokolol
+ThemesTab:AddColorpicker({
+	Name = "Theme changer",
+	Default = Color3.fromRGB(228, 173, 200),
+	Callback = function(Value)
+		print(Value)
+	end	  
+})
+
+
+-- kebinx
+local KeyBindTab = Window:MakeTab({
+	Name = "SetKeybind",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+
+-- kebinx
+SetKeybindTab:AddBind({
+	Name = "Bind",
+	Default = Enum.KeyCode.E,
+	Hold = false,
+	Callback = function()
+		print("press")
+	end    
+})
+OrionLib:Init()
+       
