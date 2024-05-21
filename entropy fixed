@@ -1,0 +1,210 @@
+
+local lplr = game.Players.LocalPlayer
+
+if game.PlaceId == 6872265039 then
+    lplr:Kick("Entropy does not support this game")
+else
+    local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+    local Window = OrionLib:MakeWindow({
+        Name = "Entropy | basic beta",
+        HidePremium = false,
+        IntroText = "Entropy Basic Version",
+        SaveConfig = true,
+        ConfigFolder = "BestClient"
+    })
+
+    local BlatantTab = Window:MakeTab({
+        Name = "Blatant",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    function detectEnemies()
+        local players = game:GetService("Players"):GetPlayers()
+        local enemies = {}
+        for _, player in pairs(players) do
+            if player ~= lplr and (player.Character.HumanoidRootPart.Position - lplr.Character.HumanoidRootPart.Position).Magnitude < 18 then
+                table.insert(enemies, player)
+            end
+        end
+        return enemies
+    end
+
+    local function attackEnemies(enemies)
+        for _, enemy in pairs(enemies) do
+            if enemy and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
+                game:GetService("ReplicatedStorage").Damage:FireServer(enemy.Character.HumanoidRootPart, lplr.Character.HumanoidRootPart)
+            end
+        end
+    end
+
+    BlatantTab:AddToggle({
+        Name = "Killaura",
+        Default = false,
+        Callback = function(value)
+            if value then
+                while value do
+                    wait()
+                    local enemies = detectEnemies()
+                    attackEnemies(enemies)
+                end
+            end
+        end
+    })
+
+    function fly()
+        local character = lplr.Character
+        character.Humanoid.WalkSpeed = 23
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.Parent = lplr.Character.HumanoidRootPart
+
+        local function updateMovement()
+            local userInput = game:GetService("UserInputService"):GetUserInput(Enum.UserInputType.MouseDelta)
+            bodyVelocity.Velocity = Vector3.new(userInput.X, userInput.Y, 0)
+        end
+
+        game:GetService("RunService").RenderStepped:Connect(updateMovement)
+        flyActive = true
+    end
+
+    function stopFly()
+        local character = lplr.Character
+        character.Humanoid.WalkSpeed = 16
+        local bodyVelocity = character.HumanoidRootPart:FindFirstChild("BodyVelocity")
+        if bodyVelocity then
+            bodyVelocity:Destroy()
+        end
+        flyActive = false
+    end
+
+    BlatantTab:AddToggle({
+        Name = "Fly",
+        Default = false,
+        Callback = function(v)
+            if v then
+                fly()
+            else
+                stopFly()
+            end
+        end
+    })
+
+    local flyToggle = false
+    game:GetService("UserInputService").InputBegan:Connect(function(i)
+        if i.KeyCode == Enum.KeyCode.C and not flyToggle then
+            if not flyActive then
+                fly()
+            else
+                stopFly()
+            end
+            flyToggle = true
+            wait(0.5)
+            flyToggle = false
+        end
+    end)
+
+    BlatantTab:AddToggle({
+        Name = "Speed",
+        Default = false,
+        Callback = function(value)
+            if value then
+                lplr.Character.Humanoid.WalkSpeed = 23
+            else
+                lplr.Character.Humanoid.WalkSpeed = 16
+            end
+        end
+    })
+
+    local VisualsTab = Window:MakeTab({
+        Name = "Visuals",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    VisualsTab:AddToggle({
+        Name = "BoxESP",
+        Default = false,
+        Callback = function(val)
+            local lplr = game.Players.LocalPlayer
+            local camera = workspace.CurrentCamera
+            local HeadOff = Vector3.new(0, 0.5, 0)
+            local LegOff = Vector3.new(0, 3, 0)
+
+            for _, player in pairs(game.Players:GetChildren()) do
+                local BoxOutline = Drawing.new("Square")
+                BoxOutline.Visible = false
+                BoxOutline.Color = Color3.new(228/255, 173/255, 200/255)
+                BoxOutline.Thickness = 3
+                BoxOutline.Transparency = 1
+                BoxOutline.Filled = false
+
+                local Box = Drawing.new("Square")
+                Box.Visible = false
+                Box.Color = Color3.new(1, 1, 1)
+                Box.Thickness = 1
+                Box.Transparency = 1
+                Box.Filled = false
+
+                local function box()
+                    game:GetService("RunService").RenderStepped:Connect(function()
+                        if player.Character and player.Character:FindFirstChild("Humanoid") and player.Character:FindFirstChild("HumanoidRootPart") and player ~= lplr and player.Character.Humanoid.Health > 0 then
+                            local RootPart = player.Character.HumanoidRootPart
+                            local Head = player.Character.Head
+                            local RootPosition, onScreen = camera:WorldToViewportPoint(RootPart.Position)
+                            local HeadPosition = camera:WorldToViewportPoint(Head.Position + HeadOff)
+                            local LegPosition = camera:WorldToViewportPoint(RootPart.Position - LegOff)
+
+                            if onScreen then
+                                BoxOutline.Size = Vector2.new(1000 / RootPosition.Z, HeadPosition.Y - LegPosition.Y)
+                                BoxOutline.Position = Vector2.new(RootPosition.X - BoxOutline.Size.X / 2, RootPosition.Y - BoxOutline.Size.Y / 2)
+                                BoxOutline.Visible = true
+
+                                Box.Size = Vector2.new(1000 / RootPosition.Z, HeadPosition.Y - LegPosition.Y)
+                                Box.Position = Vector2.new(RootPosition.X - Box.Size.X / 2, RootPosition.Y - Box.Size.Y / 2)
+                                Box.Visible = true
+                            else
+                                BoxOutline.Visible = false
+                                Box.Visible = false
+                            end
+                        end
+                    end)
+                end
+
+                box()
+            end
+        end
+    })
+
+    local ThemesTab = Window:MakeTab({
+        Name = "Themes",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    ThemesTab:AddColorpicker({
+        Name = "Theme changer",
+        Default = Color3.fromRGB(228, 173, 200),
+        Callback = function(value)
+            print(value)
+        end
+    })
+
+    local KeyBindTab = Window:MakeTab({
+        Name = "SetKeybind",
+        Icon = "rbxassetid://4483345998",
+        PremiumOnly = false
+    })
+
+    KeyBindTab:AddBind({
+        Name = "Bind",
+        Default = Enum.KeyCode.E,
+        Hold = false,
+        Callback = function()
+            print("press")
+        end
+    })
+
+    OrionLib:Init()
+end
